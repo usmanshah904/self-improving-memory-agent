@@ -1,8 +1,35 @@
+"""Memory-aware, adaptive work assistant.
+
+Each run: retrieve memories relevant to the task -> answer with them (Claude)
+-> extract one reusable preference, skill or instruction (Claude) -> save it,
+consolidating it with similar memories. The next run starts from what the
+previous runs learned.
+
+Claude is reached through the already-authenticated Claude Code CLI
+(`claude -p`); no API key is needed.
+
+Usage:
+    python agent.py "Explain what an API is"     # one task
+    python agent.py                               # asks for the task
+    python agent.py --show-memories               # list what it has learned
+    python agent.py --consolidate                 # merge similar memories
+    python agent.py --reset                       # forget everything
+    python agent.py --memory-file demo.json ...   # use a separate memory store
+"""
+
+from __future__ import annotations
+
+import argparse
 import json
+import os
+import re
 import shutil
 import subprocess
+import sys
 
-from memory_manager import search_memories, save_memory
+import memory_manager
+
+CLAUDE_TIMEOUT_SECONDS = 180
 
 
 def ask_claude(prompt: str) -> str:
@@ -17,8 +44,11 @@ def ask_claude(prompt: str) -> str:
         result = subprocess.run(
             [claude_path, "-p", prompt],
             capture_output=True,
-            text=True,
-            timeout=180,
+            # The CLI writes UTF-8; without this, Windows decodes it with the
+            # legacy code page and characters like "—" come out garbled.
+            encoding="utf-8",
+            errors="replace",
+            timeout=CLAUDE_TIMEOUT_SECONDS,
         )
 
         if result.returncode != 0:
@@ -69,6 +99,31 @@ Respond directly to the user's task.
 """
 
     return ask_claude(prompt)
+
+
+def parse_learning(reply: str) -> dict | None:
+    """Read the learning step's JSON reply.
+
+    Tolerates the reply being wrapped in a ```json code block or surrounded by
+    other text: the first {...} object is used.
+    """
+    match = re.search(r"\{.*\}", reply, flags=re.DOTALL)
+    if not match:
+        return None
+    try:
+        data = json.loads(match.group(0))
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(data, dict) or not data.get("should_remember"):
+        return None
+
+    memory = str(data.get("memory", "")).strip()
+    category = str(data.get("category", "")).strip()
+    if not memory:
+        return None
+    if category not in memory_manager.CATEGORIES:
+        category = "preference"
+    return {"memory": memory, "category": category}
 
 
 def extract_learning(
@@ -137,56 +192,24 @@ If there is nothing useful to remember, return:
 """
 
     result = ask_claude(prompt)
-
-    try:
-        data = json.loads(result)
-
-        if not data.get("should_remember"):
-            return None
-
-        memory = data.get("memory", "").strip()
-        category = data.get("category", "").strip()
-
-        if not memory:
-            return None
-
-        if category not in {
-            "preference",
-            "skill",
-            "instruction"
-        }:
-            category = "preference"
-
-        return {
-            "memory": memory,
-            "category": category,
-        }
-
-    except json.JSONDecodeError:
-        print("[learning] Claude did not return valid JSON.")
+    if result.startswith("ERROR:"):
+        print(f"[learning] {result}")
         return None
 
+    learning = parse_learning(result)
+    if learning is None and "should_remember" not in result:
+        print("[learning] Claude did not return valid JSON.")
+    return learning
 
-def run_agent() -> None:
-    """Run one complete agent interaction."""
 
-    print("=" * 60)
-    print("MEMORY-AWARE + ADAPTIVE WORK ASSISTANT")
-    print("=" * 60)
-
-    user_task = input(
-        "\nWhat would you like help with?\n> "
-    ).strip()
-
-    if not user_task:
-        print("No task provided.")
-        return
+def run_agent(user_task: str) -> int:
+    """Run one complete agent interaction. Returns a process exit code."""
 
     # ---------------------------------------------------------
     # 1. Retrieve relevant memories
     # ---------------------------------------------------------
 
-    relevant_memories = search_memories(user_task)
+    relevant_memories = memory_manager.search_memories(user_task)
 
     print("\n[retrieval]")
 
@@ -215,9 +238,10 @@ def run_agent() -> None:
 
     if response.startswith("ERROR:"):
         print(response)
-        return
+        return 1
 
     print(response)
+    memory_manager.mark_used([m["id"] for m in relevant_memories])
 
     # ---------------------------------------------------------
     # 3. Learn reusable behavior
@@ -231,11 +255,15 @@ def run_agent() -> None:
     )
 
     if learning:
-
-        save_memory(
+        result = memory_manager.save_memory(
             learning["memory"],
             learning["category"]
         )
+
+        if result["action"] == "consolidated":
+            print(f"[memory] Consolidated {result['merged']} similar memory(s).")
+        else:
+            print("[memory] Added new memory.")
 
         print(
             f"Learned {learning['category']}:"
@@ -249,7 +277,64 @@ def run_agent() -> None:
         print("No new reusable learning.")
 
     print("\n[done]")
+    return 0
+
+
+def show_memories() -> None:
+    memories = memory_manager.get_memories()
+    if not memories:
+        print("No memories saved yet.")
+        return
+    print(f"{len(memories)} memory(s):")
+    for m in memories:
+        used = f"used {m['use_count']}x" if m["use_count"] else "not used yet"
+        print(f"- [{m['category']}] {m['memory']}  ({used})")
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Memory-aware, adaptive work assistant.")
+    parser.add_argument("task", nargs="*", help="what you want help with (asked interactively if omitted)")
+    parser.add_argument("--show-memories", action="store_true", help="list saved memories and exit")
+    parser.add_argument("--consolidate", action="store_true", help="merge similar saved memories and exit")
+    parser.add_argument("--reset", action="store_true", help="delete all saved memories and exit")
+    parser.add_argument("--memory-file", help="memory store to use (default: memory/memories.json)")
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(sys.argv[1:] if argv is None else argv)
+    if args.memory_file:
+        os.environ["MEMORY_FILE"] = args.memory_file
+
+    if args.show_memories:
+        show_memories()
+        return 0
+    if args.consolidate:
+        removed = memory_manager.consolidate()
+        print(f"Merged similar memories: {removed} removed.")
+        show_memories()
+        return 0
+    if args.reset:
+        removed = memory_manager.clear_memories()
+        print(f"Deleted {removed} memory(s).")
+        return 0
+
+    print("=" * 60)
+    print("MEMORY-AWARE + ADAPTIVE WORK ASSISTANT")
+    print("=" * 60)
+
+    user_task = " ".join(args.task).strip()
+    if not user_task:
+        user_task = input("\nWhat would you like help with?\n> ").strip()
+    else:
+        print(f"\nTask: {user_task}")
+
+    if not user_task:
+        print("No task provided.")
+        return 1
+
+    return run_agent(user_task)
 
 
 if __name__ == "__main__":
-    run_agent()
+    sys.exit(main())

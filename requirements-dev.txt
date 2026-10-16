@@ -1,0 +1,3 @@
+# No runtime dependencies: the agent uses only the Python standard library
+# plus the Claude Code CLI (`claude`) on PATH, signed in.
+pytest>=8

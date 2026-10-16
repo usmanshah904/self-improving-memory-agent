@@ -1,0 +1,11 @@
+[project]
+name = "self-improving-memory-agent"
+version = "1.0.0"
+description = "An AI assistant that learns reusable preferences and skills, consolidates them, and applies them on later runs."
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Usman Shah" }]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

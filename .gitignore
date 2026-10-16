@@ -9,3 +9,6 @@ venv/
 .claude/
 .vscode/
 .idea/
+
+# Runtime memory store (personal; see memory/example-memories.json)
+memory/memories.json

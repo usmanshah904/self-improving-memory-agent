@@ -1,0 +1,270 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" role="img" aria-labelledby="t d">
+  <title id="t">Self-improving agent with persistent memory</title>
+  <desc id="d">Each run retrieves relevant memories, answers with Claude using them, extracts one reusable preference, skill or instruction, and saves it to a JSON store, merging it with similar memories of the same kind. The next run starts from what earlier runs learned.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10Z" fill="#1F4E79"/>
+    </marker>
+    <marker id="arrowMuted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10Z" fill="#647083"/>
+    </marker>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1F4E79"/><stop offset="0.55" stop-color="#5B5BD6"/><stop offset="1" stop-color="#0891B2"/>
+    </linearGradient>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#1F4E79" fill-opacity="0.08"/>
+    </pattern>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <style>
+    text { font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #142033; }
+    .h { font-size: 22px; font-weight: 700; }
+    .sub { font-size: 14px; fill: #55627a; }
+    .title { font-size: 17px; font-weight: 700; }
+    .line { font-size: 13px; fill: #55627a; }
+    .code { font-family: Consolas, "SF Mono", Menlo, monospace; font-size: 12.5px; fill: #1F4E79; }
+    .label { font-size: 12px; font-weight: 600; fill: #647083; letter-spacing: 0.05em; }
+    .step { font-size: 12px; font-weight: 700; fill: #ffffff; }
+    .chip { font-size: 12px; font-weight: 700; }
+    .small { font-size: 12px; fill: #55627a; }
+    @media (prefers-reduced-motion: reduce) { .live { display: none; } }
+  </style>
+
+  <rect width="1200" height="600" rx="20" fill="#F8FAFD"/>
+  <rect width="1200" height="600" rx="20" fill="url(#dots)"/>
+  <rect x="0" y="0" width="1200" height="5" fill="url(#brand)"/>
+  <text x="40" y="52" class="h">Retrieve → respond → learn → remember</text>
+  <text x="40" y="78" class="sub">An assistant that learns reusable preferences and skills, merges duplicates, and applies them on later runs</text>
+
+
+  <!-- glows sit behind the boxes -->
+  <g class="live">
+  <rect x="202" y="192" width="208" height="140" rx="18" fill="#0891B2" fill-opacity="0.10"
+        stroke="#0891B2" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.0437;0.0594;0.1094;0.1250;1.0000"/>
+  </rect>
+  <rect x="436" y="192" width="208" height="140" rx="18" fill="#5B5BD6" fill-opacity="0.10"
+        stroke="#5B5BD6" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.1562;0.1719;0.2156;0.2313;1.0000"/>
+  </rect>
+  <rect x="670" y="192" width="208" height="140" rx="18" fill="#5B5BD6" fill-opacity="0.10"
+        stroke="#5B5BD6" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.2625;0.2781;0.3156;0.3312;1.0000"/>
+  </rect>
+  <rect x="904" y="192" width="260" height="140" rx="18" fill="#1F4E79" fill-opacity="0.10"
+        stroke="#1F4E79" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.3625;0.3781;0.3969;0.4125;1.0000"/>
+  </rect>
+  <rect x="332" y="408" width="536" height="128" rx="20" fill="#1F4E79" fill-opacity="0.10"
+        stroke="#1F4E79" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.4375;0.4531;0.4781;0.4938;1.0000"/>
+  </rect>
+  <rect x="332" y="408" width="536" height="128" rx="20" fill="#647083" fill-opacity="0.10"
+        stroke="#647083" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.5250;0.5406;0.5719;0.5875;1.0000"/>
+  </rect>
+  <rect x="202" y="192" width="208" height="140" rx="18" fill="#0891B2" fill-opacity="0.10"
+        stroke="#0891B2" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.5437;0.5594;0.6094;0.6250;1.0000"/>
+  </rect>
+  <rect x="436" y="192" width="208" height="140" rx="18" fill="#5B5BD6" fill-opacity="0.10"
+        stroke="#5B5BD6" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.6562;0.6719;0.7156;0.7312;1.0000"/>
+  </rect>
+  <rect x="670" y="192" width="208" height="140" rx="18" fill="#5B5BD6" fill-opacity="0.10"
+        stroke="#5B5BD6" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.7625;0.7781;0.8156;0.8313;1.0000"/>
+  </rect>
+  <rect x="904" y="192" width="260" height="140" rx="18" fill="#1F4E79" fill-opacity="0.10"
+        stroke="#1F4E79" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.8625;0.8781;0.8969;0.9125;1.0000"/>
+  </rect>
+  <rect x="332" y="408" width="536" height="128" rx="20" fill="#1F4E79" fill-opacity="0.10"
+        stroke="#1F4E79" stroke-width="5" opacity="0" filter="url(#glow)">
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.9375;0.9531;0.9781;0.9938;1.0000"/>
+  </rect>
+  </g>
+  <!-- Task -->
+  <rect x="40" y="214" width="128" height="96" rx="14" fill="#ffffff" stroke="#CFD7E3"/>
+  <text x="104" y="254" text-anchor="middle" class="title">Task</text>
+  <text x="104" y="278" text-anchor="middle" class="small">your request</text>
+
+  <!-- 1 Retrieve -->
+  <rect x="206" y="196" width="200" height="132" rx="14" fill="#ffffff" stroke="#0891B2" stroke-width="2"/>
+  <rect x="206" y="196" width="200" height="6" rx="3" fill="#0891B2"/>
+  <circle cx="206" cy="196" r="13" fill="#0891B2"/><text x="206" y="200.5" text-anchor="middle" class="step">1</text>
+  <text x="226" y="232" class="title">Retrieve</text>
+  <text x="226" y="256" class="code">search_memories()</text>
+  <text x="226" y="278" class="line">keyword match, top 3,</text>
+  <text x="226" y="296" class="line">only relevant memories</text>
+
+  <!-- 2 Respond -->
+  <rect x="440" y="196" width="200" height="132" rx="14" fill="#ffffff" stroke="#5B5BD6" stroke-width="2"/>
+  <rect x="440" y="196" width="200" height="6" rx="3" fill="#5B5BD6"/>
+  <circle cx="440" cy="196" r="13" fill="#5B5BD6"/><text x="440" y="200.5" text-anchor="middle" class="step">2</text>
+  <text x="460" y="232" class="title">Respond</text>
+  <text x="460" y="256" class="line">Claude answers, following</text>
+  <text x="460" y="276" class="line">the retrieved preferences</text>
+  <text x="460" y="296" class="line">and skills</text>
+
+  <!-- 3 Learn -->
+  <rect x="674" y="196" width="200" height="132" rx="14" fill="#ffffff" stroke="#5B5BD6" stroke-width="2"/>
+  <rect x="674" y="196" width="200" height="6" rx="3" fill="#5B5BD6"/>
+  <circle cx="674" cy="196" r="13" fill="#5B5BD6"/><text x="674" y="200.5" text-anchor="middle" class="step">3</text>
+  <text x="694" y="232" class="title">Learn</text>
+  <text x="694" y="256" class="line">Claude extracts one reusable</text>
+  <text x="694" y="276" class="line">preference, skill or</text>
+  <text x="694" y="296" class="line">instruction (JSON)</text>
+
+  <!-- 4 Save -->
+  <rect x="908" y="196" width="252" height="132" rx="14" fill="#ffffff" stroke="#1F4E79" stroke-width="2"/>
+  <rect x="908" y="196" width="252" height="6" rx="3" fill="#1F4E79"/>
+  <circle cx="908" cy="196" r="13" fill="#1F4E79"/><text x="908" y="200.5" text-anchor="middle" class="step">4</text>
+  <text x="928" y="232" class="title">Consolidate &amp; save</text>
+  <text x="928" y="256" class="line">merges similar memories of</text>
+  <text x="928" y="276" class="line">the same kind, keeps the</text>
+  <text x="928" y="296" class="line">most detailed wording</text>
+
+  <!-- Store -->
+  <rect x="336" y="412" width="528" height="120" rx="16" fill="#ffffff" stroke="#CFD7E3" stroke-width="1.5"/>
+  <text x="356" y="438" class="label">MEMORY STORE · memory/memories.json</text>
+  <text x="356" y="520" class="small">each memory: id · category · created · last used · use count</text>
+
+  <!-- Flow -->
+  <path d="M168 262 H204" fill="none" stroke="#1F4E79" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <path d="M406 262 H438" fill="none" stroke="#1F4E79" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <path d="M640 262 H672" fill="none" stroke="#1F4E79" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <path d="M874 262 H906" fill="none" stroke="#1F4E79" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <path d="M1034 328 V472 H866" fill="none" stroke="#1F4E79" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <text x="1046" y="404" class="small">write</text>
+  <path d="M334 472 H306 V330" fill="none" stroke="#647083" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arrowMuted)"/>
+  <text x="196" y="404" class="small">read · next run</text>
+
+  <text x="40" y="572" class="line">Run 1 learns a preference. Run 2 retrieves and applies it without being told again, then learns a related skill, stored separately.</text>
+
+  <!-- live-flow -->
+  <g class="live">
+  <circle r="6.5" fill="#1F4E79" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M168 262 H204"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.0125;0.0437;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.0125;0.0200;0.0362;0.0437;1.0000"/>
+  </circle>
+  <g opacity="0"><rect x="220" y="336" width="129" height="24" rx="12" fill="#F2F4F7" stroke="#647083" stroke-width="1.3"/><text x="284" y="352.5" text-anchor="middle" class="chip" style="fill:#647083">no memories yet</text>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.0625;0.0813;0.4562;0.4750;1.0000"/>
+  </g>
+  <circle r="6.5" fill="#0891B2" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M406 262 H438"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.1250;0.1562;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.1250;0.1325;0.1487;0.1562;1.0000"/>
+  </circle>
+  <circle r="6.5" fill="#5B5BD6" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M640 262 H672"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.2313;0.2625;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.2313;0.2388;0.2550;0.2625;1.0000"/>
+  </circle>
+  <g opacity="0"><rect x="688" y="336" width="107" height="24" rx="12" fill="#ECFDF3" stroke="#067647" stroke-width="1.3"/><text x="741" y="352.5" text-anchor="middle" class="chip" style="fill:#067647">+ preference</text>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.2812;0.3000;0.4562;0.4750;1.0000"/>
+  </g>
+  <circle r="6.5" fill="#5B5BD6" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M874 262 H906"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.3312;0.3625;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.3312;0.3387;0.3550;0.3625;1.0000"/>
+  </circle>
+  <circle r="6.5" fill="#1F4E79" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M1034 328 V472 H866"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.3875;0.4437;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.3875;0.3950;0.4362;0.4437;1.0000"/>
+  </circle>
+  <circle r="6.5" fill="#1F4E79" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M168 262 H204"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.5125;0.5437;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.5125;0.5200;0.5363;0.5437;1.0000"/>
+  </circle>
+  <circle r="6.5" fill="#647083" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M334 472 H306 V330"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.5437;0.5938;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.5437;0.5512;0.5863;0.5938;1.0000"/>
+  </circle>
+  <g opacity="0"><rect x="220" y="336" width="144" height="24" rx="12" fill="#ECFEFF" stroke="#0891B2" stroke-width="1.3"/><text x="292" y="352.5" text-anchor="middle" class="chip" style="fill:#0891B2">1 relevant memory</text>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.5625;0.5813;0.9562;0.9750;1.0000"/>
+  </g>
+  <circle r="6.5" fill="#0891B2" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M406 262 H438"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.6250;0.6562;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.6250;0.6325;0.6488;0.6562;1.0000"/>
+  </circle>
+  <g opacity="0"><rect x="454" y="336" width="181" height="24" rx="12" fill="#EEF2FF" stroke="#5B5BD6" stroke-width="1.3"/><text x="544" y="352.5" text-anchor="middle" class="chip" style="fill:#5B5BD6">applies the preference</text>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.6687;0.6875;0.9562;0.9750;1.0000"/>
+  </g>
+  <circle r="6.5" fill="#5B5BD6" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M640 262 H672"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.7312;0.7625;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.7312;0.7387;0.7550;0.7625;1.0000"/>
+  </circle>
+  <g opacity="0"><rect x="688" y="336" width="70" height="24" rx="12" fill="#ECFDF3" stroke="#067647" stroke-width="1.3"/><text x="723" y="352.5" text-anchor="middle" class="chip" style="fill:#067647">+ skill</text>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.7812;0.8000;0.9562;0.9750;1.0000"/>
+  </g>
+  <circle r="6.5" fill="#5B5BD6" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M874 262 H906"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.8313;0.8625;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.8313;0.8387;0.8550;0.8625;1.0000"/>
+  </circle>
+  <circle r="6.5" fill="#1F4E79" opacity="0" filter="url(#glow)">
+    <animateMotion dur="16.0s" repeatCount="indefinite" path="M1034 328 V472 H866"
+      keyPoints="0;0;1;1" keyTimes="0.0000;0.8875;0.9437;1.0000" calcMode="linear"/>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.8875;0.8950;0.9363;0.9437;1.0000"/>
+  </circle>
+  <g opacity="0"><rect x="356" y="452" width="250" height="44" rx="10" fill="#EEF2FF" stroke="#5B5BD6" stroke-width="1.3"/><text x="370" y="470" class="chip" style="fill:#5B5BD6">preference · used</text><text x="370" y="487" class="small">short, beginner-friendly, one example</text>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.4437;0.4625;0.9781;0.9969;1.0000"/>
+  </g>
+  <g opacity="0"><rect x="616" y="452" width="232" height="44" rx="10" fill="#ECFEFF" stroke="#0891B2" stroke-width="1.3"/><text x="630" y="470" class="chip" style="fill:#0891B2">skill · new</text><text x="630" y="487" class="small">analogy, then a concrete example</text>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.9313;0.9500;0.9781;0.9969;1.0000"/>
+  </g>
+  </g>
+  <g class="live">
+    <circle cx="930" cy="47" r="5" fill="#12B76A">
+      <animate attributeName="opacity" dur="1.6s" repeatCount="indefinite" values="1;0.35;1"/>
+    </circle>
+  <g opacity="0"><text x="942" y="52" class="label" style="fill:#067647">LIVE FLOW · RUN 1</text>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.0000;0.0187;0.4750;0.4938;1.0000"/>
+  </g>
+  <g opacity="0"><text x="942" y="52" class="label" style="fill:#5B5BD6">LIVE FLOW · RUN 2</text>
+    <animate attributeName="opacity" dur="16.0s" repeatCount="indefinite"
+      values="0;0;1;1;0;0" keyTimes="0.0000;0.5000;0.5188;0.9750;0.9938;1.0000"/>
+  </g>
+  </g>
+
+</svg>
