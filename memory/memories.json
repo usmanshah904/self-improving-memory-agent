@@ -1,0 +1,14 @@
+[
+  {
+    "memory": "User prefers short, beginner-friendly technical explanations with a simple example.",
+    "category": "preference"
+  },
+  {
+    "memory": "When explaining technical topics, use simple language and provide one practical example.",
+    "category": "instruction"
+  },
+  {
+    "memory": "When giving technical explanations, keep them short, beginner-friendly, and include one simple real-world example.",
+    "category": "preference"
+  }
+]
